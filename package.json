@@ -1,0 +1,31 @@
+{
+  "name": "@rbxts/talk-eligibility",
+  "description": "Checks which players can chat with one another based on ROBLOX chat permissions.",
+  "version": "1.0.0-beta.1",
+  "main": "out/init.luau",
+  "typings": "out/index.d.ts",
+  "license": "BSD-2-Clause-Patent",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://codeberg.org/project-roadwork/talk-eligibility.git"
+  },
+  "author": {
+    "name": "Illinois_Roadbuff (Rogue Jr)"
+  },
+  "files": [
+    "**/out/**",
+    "!**/*.tsbuildinfo"
+  ],
+  "dependencies": {
+    "@rbxts/compiler-types": "^3.0.0-types.0",
+    "@rbxts/types": "=1.0.918",
+    "roblox-ts": "^3.0.0",
+    "typescript": "=5.5.3"
+  },
+  "scripts": {
+    "serve": "rojo serve test.project.json",
+    "build": "pnpm rbxtsc build --verbose --rojo typescript.project.json",
+    "prepublishOnly": "pnpm run build"
+  }
+}

@@ -34,18 +34,20 @@ end
 -- Base Config
 const BASE_CONFIG = {
     LOCKED = false,
+    _VERSION = _versionToString(version),
 
+    -- Repositories
     CODEBERG = "https://codeberg.org/project-roadwork/talk-eligibility.git",
 	GITHUB = "https://github.com/project-roadwork/talk-eligibility.git",
+
+	CodebergTags = "https://codeberg.org/api/v1/repos/project-roadwork/light-reflector/tags",
 
 	CheckForUpdates = true,
 	ShowPrints = true,
 	ShowWarns = true,
 
-    CodebergTags = "https://codeberg.org/api/v1/repos/project-roadwork/light-reflector/tags",
-
-    _VERSION = _versionToString(version),
     TextChatService = game:GetService("TextChatService"),
+    --^ Change this if you are using something like OpenTextChatService
 
     BeginningString = `<b><font color="#{Color3.fromRGB(210, 210, 210):ToHex()}">[Talk Eligibility]</font></b> `,
     CanChatTemplate = "🔊 %s joined. You are able to talk with this player.",
@@ -61,6 +63,7 @@ const BASE_CONFIG = {
     ShowTalkablePlayers = true,
     ShowNonTalkablePlayers = true,
 
+    -- Max amount shown until cutoff (e.g., plr1, plr2, and 2 others)
     MaxTalkablePlayersShown = 10,
     MaxNonTalkablePlayersShown = 10,
 
@@ -74,6 +77,7 @@ const BASE_CONFIG = {
 -- Flags
 const FLAGS = {
 	["SHOW_NO_RESTRICTION"] = false,
+	-- ^ Displays no restriction messages like if the player is the creator. This may be inaccurate.
 }
 
 --[=[

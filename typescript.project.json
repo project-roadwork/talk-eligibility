@@ -1,0 +1,9 @@
+{
+  "name": "talk-eligibility",
+  "tree": {
+    "$className": "Folder",
+    "src": {
+      "$path": "out"
+    }
+  }
+}
