@@ -10,8 +10,12 @@
     "type": "git",
     "url": "https://codeberg.org/project-roadwork/talk-eligibility.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://codeberg.org/project-roadwork/talk-eligibility#readme",
   "author": {
-    "name": "Illinois_Roadbuff (Rogue Jr)"
+    "name": "Illinois_Roadbuff"
   },
   "files": [
     "**/out/**",
