@@ -4,7 +4,7 @@
   "version": "1.0.0-beta.1",
   "main": "out/init.luau",
   "typings": "out/index.d.ts",
-  "license": "BSD-2-Clause-Patent",
+  "license": "Apache-2.0 WITH LLVM-exception",
   "type": "commonjs",
   "repository": {
     "type": "git",

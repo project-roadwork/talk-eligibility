@@ -24,15 +24,15 @@ path = [
     "NOTICE",
     "test.project.json",
     "standalone.project.json",
-#    "package.json",
-#    "typescript.project.json",
+    "package.json",
+    "typescript.project.json",
 #    ".forgejo/workflows/**"
 ]
 SPDX-FileCopyrightText = [
 "2025-2026 Illinois_Roadbuff (Rogue Jr) <illinois_roadbuff@proton.me>",
 "2025-2026 Project Roadwork and Contributors"]
 
-SPDX-License-Identifier = "BSD-2-Clause-Patent"
+SPDX-License-Identifier = "Apache-2.0 WITH LLVM-exception"
 
 # Common Property
 [[annotations]]

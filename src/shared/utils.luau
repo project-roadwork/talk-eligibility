@@ -3,7 +3,7 @@
     SPDX-FileCopyrightText:   Copyright 2026 Illinois_Roadbuff (Rogue Jr) <illinois_roadbuff@proton.me>
 	SPDX-FileCopyrightText:   Copyright 2026 Project Roadwork and Contributors
 
-	SPDX-License-Identifier:   BSD-2-Clause-Patent
+	SPDX-License-Identifier:   Apache-2.0 WITH LLVM-exception
 
 ]]
 
@@ -41,7 +41,7 @@ end
 --[=[
 	Public: Converts version to string
 ]=]
-const function versionToString(v: types.Version): string
+local function versionToString(v: types.Version): string
 	local str: string = `{v.major}.{v.minor}.{v.patch}`
 	if v.pre_release and v.pre_release ~= "" then
 		str = `{str}-{v.pre_release}`

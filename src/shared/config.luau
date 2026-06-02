@@ -3,7 +3,7 @@
     SPDX-FileCopyrightText:   Copyright 2026 Illinois_Roadbuff (Rogue Jr) <illinois_roadbuff@proton.me>
 	SPDX-FileCopyrightText:   Copyright 2026 Project Roadwork and Contributors
 
-	SPDX-License-Identifier:   BSD-2-Clause-Patent
+	SPDX-License-Identifier:   Apache-2.0 WITH LLVM-exception
 
 ]]
 
@@ -11,13 +11,13 @@
 --!strict
 
 -- Variables
-const version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "alpha", build = 1, metadata = ""})
+local version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "alpha", build = 1, metadata = ""})
 
 --[=[
 	Private: Converts version to string
 	@private
 ]=]
-const function _versionToString(v: Version): string
+local function _versionToString(v: Version): string
 	local str: string = `{v.major}.{v.minor}.{v.patch}`
 	if v.pre_release and v.pre_release ~= "" then
 		str = `{str}-{v.pre_release}`
@@ -32,7 +32,7 @@ const function _versionToString(v: Version): string
 end
 
 -- Base Config
-const BASE_CONFIG = {
+local BASE_CONFIG = {
     LOCKED = false,
     _VERSION = _versionToString(version),
 
