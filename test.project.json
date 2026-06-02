@@ -1,0 +1,16 @@
+{
+  "name": "talk-eligibility-dev",
+  "emitLegacyScripts": false,
+
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Packages": {
+        "$className": "Folder",
+        "lightreflector": {
+          "$path": "src"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+# REUSE.toml
+#
+# This file keeps track of licensing within all files in the repository except src/**.
+# For licensing information in the source code, refer to the headers and comments in each file.
+# Each file in the source code includes copyright authors and SPDX license identifiers.
+
+version = 1
+
+# README, documentaiton content, and branding
+[[annotations]]
+path = [
+
+    "README.md"
+]
+SPDX-FileCopyrightText = [
+"2025-2026 Illinois_Roadbuff (Rogue Jr) <illinois_roadbuff@proton.me>",
+"2025-2026 Project Roadwork and Contributors"]
+
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Other files
+[[annotations]]
+path = [
+    "NOTICE",
+    "test.project.json",
+    "standalone.project.json",
+#    "package.json",
+#    "typescript.project.json",
+#    ".forgejo/workflows/**"
+]
+SPDX-FileCopyrightText = [
+"2025-2026 Illinois_Roadbuff (Rogue Jr) <illinois_roadbuff@proton.me>",
+"2025-2026 Project Roadwork and Contributors"]
+
+SPDX-License-Identifier = "BSD-2-Clause-Patent"
+
+# Common Property
+[[annotations]]
+path = [
+    ".gitignore",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    ".forgejo/ISSUE_TEMPLATE/bug_report.md",
+    ".forgejo/ISSUE_TEMPLATE/feature_request.md",
+    ".forgejo/PULL_REQUEST_TEMPLATE.md",
+    ".github/ISSUE_TEMPLATE/notice.md",
+    ".github/pull_request_template.md",
+    "pesde.toml",
+    "pesde.lock",
+    "wally.lock",
+    "wally.toml",
+    ".luaurc",
+    ".gitattributes",
+    ".zed/settings.json",
+    ".json",
+    "tsconfig.json",
+    "pnpm-lock.yaml",
+    "docs/.vscode/**",
+    "docs/.gitignore"
+
+]
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0 OR Unlicense"

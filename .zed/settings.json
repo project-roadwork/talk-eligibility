@@ -1,0 +1,32 @@
+{
+  "lsp": {
+    "luau-lsp": {
+      "settings": {
+        "luau-lsp": {
+          "sourcemap": {
+            "rojoProjectFile": "test.project.json",
+          },
+        },
+        "fflags": {
+          "enable_new_solver": true,
+          "enable_by_default": true,
+          "sync": true,
+        },
+        "roblox": {
+          "enabled": true,
+          "security_level": "plugin",
+        },
+      },
+    },
+  },
+  "languages": {
+    "Luau": {
+      "formatter": {
+        "external": {
+          "command": "stylua",
+          "arguments": ["-"],
+        },
+      },
+    },
+  },
+}
