@@ -1,7 +1,32 @@
 # Talk Eligibility
 **A typed library that checks which players can chat with one another based on ROBLOX chat permissions.**
 
+> [!NOTE]
+> ***You must have the new Luau type solver enabled in `Workspace` in order to receive proper types.***
+
 ## Installation
+*You may get the `.rbxm` file directly from [Codeberg Releases](https://codeberg.org/project-roadwork/talk-eligibility/releases), or *install via Wally or Pesde*:**
+
+**Install via pesde:**
+```bash
+pesde add project_roadwork/light_reflector@version
+pesde install
+```
+*Replace version with the current version of the package.*
+
+**Or install via Wally:**
+Add this to your `wally.toml` file:
+
+```toml [wally.toml]
+[dependencies]
+lightreflector = "illinois-roadbuff/light-reflector@version"
+```
+*Replace version with the current version of the package.*
+
+Then, type this into your terminal and press enter:
+```bash
+wally install
+```
 
 ## Quick Start
 ```luau
@@ -16,7 +41,7 @@ TalkEligibility.start()
 
 ## Configuration
 ```luau
-const BASE_CONFIG = {
+local BASE_CONFIG = {
 
 	  CheckForUpdates = true,
 	  ShowPrints = true,
@@ -52,4 +77,4 @@ const BASE_CONFIG = {
 ```
 
 ## License
-**Licensed under the Apache License 2.0 WITH the LLVM exception.**
+**Licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) WITH the [LLVM exception](https://spdx.org/licenses/LLVM-exception.html).**

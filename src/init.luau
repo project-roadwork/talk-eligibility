@@ -14,7 +14,7 @@
 
 -- Services
 local RunService: RunService = game:GetService("RunService")
-const HttpService: HttpService = game:GetService("HttpService")
+local HttpService: HttpService = game:GetService("HttpService")
 
 -- Modules
 local types: {} = require("@self/shared/types")
