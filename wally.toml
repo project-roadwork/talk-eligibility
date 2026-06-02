@@ -1,0 +1,12 @@
+[package]
+name = "illinois-roadbuff/talk-eligibility"
+version = "1.0.0-alpha.1"
+description = "Checks which players can chat with one another based on ROBLOX chat permissions."
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+license = "BSD-2-Clause-Patent"
+includes = ["LICENSE","NOTICE","src/**/*.luau"]
+repository = "https://codeberg.org/project-roadwork/talk-eligibility.git"
+authors = ["Illinois_Roadbuff [Rogue Jr] <illinois_roadbuff@proton.me>"]
+
+[dependencies]
