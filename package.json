@@ -1,7 +1,7 @@
 {
   "name": "@rbxts/talk-eligibility",
   "description": "Checks which players can chat with one another based on ROBLOX chat permissions.",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "main": "out/init.luau",
   "typings": "out/index.d.ts",
   "license": "Apache-2.0 WITH LLVM-exception",
@@ -14,9 +14,6 @@
     "access": "public"
   },
   "homepage": "https://codeberg.org/project-roadwork/talk-eligibility#readme",
-  "author": {
-    "name": "Illinois_Roadbuff"
-  },
   "files": [
     "**/out/**",
     "!**/*.tsbuildinfo"
