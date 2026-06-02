@@ -11,27 +11,35 @@
 --!strict
 
 -- Services
-local EncodingService = game:GetService("EncodingService")
 local TextChatService: TextChatService = game:GetService("TextChatService")
 local Players: Players = game:GetService("Players")
 
 -- Modules
-local QuickNet = require("../shared/net/QuickNet")
-local config = require("../shared/config")
+local QuickNet: QuickNet.QuickNet = require("../shared/net/QuickNet")
+local types: {} = require("../shared/types")
+local config: types.ConfigModule = require("../shared/config")
+local utils: types.Utils = require("../shared/utils")
 
--- Variables
-local BASE_CONFIG = config.getConfig()
-local version: string = BASE_CONFIG._VERSION
+-- Register Net Events
+local data: QuickNet.DataTypes = QuickNet.Data
 
--- QuickNet Variables
-local data = QuickNet.Data
-local checkNewPlayer = QuickNet:register(
+local checkNewPlayer: QuickNet.NetworkEvent<(boolean | string)?, Player?> = QuickNet:register(
 	"checkNewPlayer",
 	data.optional(data.union(data.Boolean, data.String)),
 	data.optional(data.Player)
 )
-local getTalkablePlayers = QuickNet:register("getTalkablePlayers", data.optional({ [data.Player] = data.Boolean }))
 
+local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }> =
+	QuickNet:register("getTalkablePlayers", data.optional({ [data.Player] = data.Boolean }))
+
+-- Variables
+local BASE_CONFIG: types.BaseConfig = config.getConfig()
+local version: string = BASE_CONFIG._VERSION
+
+--[=[
+	Private: Checks if the local player already has no restrictions, like being the creator
+	@private
+]=]
 local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | string
 	local success: boolean, result: boolean | string | nil =
 		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdFrom, userIdTo)
@@ -41,13 +49,17 @@ local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | st
 	else
 		local message: string =
 			`[Talk Eligibility {version}] An error occured while calling TextChatService.CanUsersChatAsync: {result}`
-		warn(message)
+		utils.wrappedWarn(message)
 		return message
 	end
 end
 
+--[=[
+	Private: Returns a dictionary of players that a certain player can talk to
+	@private
+]=]
 local function _getTalkablePlayersfromPlayer(fromPlayer: Player): { [Player]: boolean }
-	local allowedPlayers: { [Player]: boolean } = {}
+	local talkablePlayers: { [Player]: boolean } = {}
 
 	for _: number, existingPlayer: Player in Players:GetPlayers() do
 		local result = _canUsersChat(fromPlayer.UserId, existingPlayer.UserId)
@@ -56,20 +68,34 @@ local function _getTalkablePlayersfromPlayer(fromPlayer: Player): { [Player]: bo
 			result = false -- a returned string means that the request failed
 		end
 
-		allowedPlayers[existingPlayer] = result :: boolean
+		talkablePlayers[existingPlayer] = result :: boolean
 	end
 
-	return allowedPlayers
+	return talkablePlayers
 end
 
+--[=[
+	Private: Fires all clients whether they can chat with an added player or not
+	@private
+]=]
 local function _onPlayerAdded(newPlayer: Player): ()
-	for _, existingPlayer: Player in Players:GetPlayers() do
-		checkNewPlayer:FireClient(existingPlayer, _canUsersChat(existingPlayer.UserId, newPlayer.UserId))
+	for _: number, existingPlayer: Player in Players:GetPlayers() do
+		checkNewPlayer:FireClient(existingPlayer, _canUsersChat(existingPlayer.UserId, newPlayer.UserId), newPlayer)
 	end
 end
 
-local function init(): () end
+--[=[
+	Public: Inits the server module
+]=]
+local function init(): ()
+	if BASE_CONFIG.TextChatService ~= TextChatService then
+		TextChatService = BASE_CONFIG.TextChatService
+	end
+end
 
+--[=[
+	Public: Starts the server module
+]=]
 local function start(): ()
 	getTalkablePlayers.OnServerEvent:Connect(function(player: Player)
 		getTalkablePlayers:FireClient(player, _getTalkablePlayersfromPlayer(player))
@@ -78,6 +104,7 @@ local function start(): ()
 	Players.PlayerAdded:Connect(_onPlayerAdded)
 end
 
+-- Return public variables and API
 return {
 	name = "check",
 	init = init,

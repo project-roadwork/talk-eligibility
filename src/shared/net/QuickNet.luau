@@ -1006,5 +1006,6 @@ end
 start()
 
 export type QuickNet = typeof(Net)
+export type DataTypes = typeof(DataTypes)
 
 return Net

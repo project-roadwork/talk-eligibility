@@ -14,97 +14,49 @@
 local TextChatService: TextChatService | any = game:GetService("TextChatService")
 local Players: Players = game:GetService("Players")
 
-local QuickNet = require("../shared/net/QuickNet")
-local config = require("../shared/config")
+-- Modules
+local QuickNet: QuickNet.QuickNet = require("../shared/net/QuickNet")
+local config: types.ConfigModule = require("../shared/config")
+local utils: types.Utils = require("../shared/utils")
+local types: {} = require("../shared/types")
 
--- Variables
-local BASE_CONFIG = config.getConfig()
-local version: string = BASE_CONFIG._VERSION
+-- Register Net Events
+local data: QuickNet.DataTypes = QuickNet.Data
 
-local data = QuickNet.Data
-local checkNewPlayer = QuickNet:register(
+local checkNewPlayer: QuickNet.NetworkEvent<(boolean | string)?, Player?> = QuickNet:register(
 	"checkNewPlayer",
 	data.optional(data.union(data.Boolean, data.String)),
 	data.optional(data.Player)
 )
-local getTalkablePlayers = QuickNet:register("getTalkablePlayers", data.optional({ [data.Player] = data.Boolean }))
 
-local LocalPlayer: Player = Players.LocalPlayer
+local getTalkablePlayers: QuickNet.NetworkEvent<{[Player]: boolean}> =
+    QuickNet:register("getTalkablePlayers", data.optional({ [data.Player] = data.Boolean }))
+
+-- Variables
+local BASE_CONFIG: types.BaseConfig = config.getConfig()
+local version: string = BASE_CONFIG._VERSION
+local LocalPlayer: Player? = Players.LocalPlayer
 local SystemChannel: TextChannel? = nil
-
 local GameCreatorId: number = game.CreatorId
 
-local function _createMultiplePlayerString(talkablePlayers: { [Player]: boolean }, getTalkable: boolean): string
-	local players: { string } = {}
+-- Utils Functions
+local _createSystemMessage: types.createSystemMessage = utils.createSystemMessage
+local _createMultiplePlayerString: types.createMultiplePlayerString = utils.createMultiplePlayerString
+local _createMultiplePlayerStringWithOmit: types.createMultiplePlayerStringWithOmit = utils.createMultiplePlayerStringWithOmit
 
-	for player: Player, canTalk: boolean in talkablePlayers do
-		if canTalk == getTalkable then
-			table.insert(players, player.DisplayName)
-		end
-	end
-
-	local count: number = #players
-
-	if count == 0 then
-		return ""
-	elseif count == 1 then
-		return players[1]
-	elseif count == 2 then
-		return `{players[1]} and {players[2]}`
-	end
-
-	local lastPlayer: string? = table.remove(players)
-	return `{table.concat(players, ", ")}, and {lastPlayer}`
-end
-
-local function _createMultiplePlayerStringWithOmit(
-	talkablePlayers: { [Player]: boolean },
-	getTalkable: boolean,
-	maxNumber: number
-): string
-	local players: { string } = {}
-
-	for player: Player, canTalk: boolean in talkablePlayers do
-		if canTalk == getTalkable then
-			table.insert(players, player.DisplayName)
-		end
-	end
-
-	local count: number = #players
-
-	if count == 0 then
-		return ""
-	end
-
-	-- No omission needed
-	if count <= maxNumber then
-		if count == 1 then
-			return players[1]
-		elseif count == 2 then
-			return `{players[1]} and {players[2]}`
-		end
-
-		local lastPlayer = table.remove(players)
-		return `{table.concat(players, ", ")}, and {lastPlayer}`
-	end
-
-	-- Omission needed
-	local shown: { string } = {}
-
-	for i = 1, maxNumber do
-		shown[i] = players[i]
-	end
-
-	local omitted = count - maxNumber
-
-	return `{table.concat(shown, ", ")}, and {omitted} other{if omitted == 1 then "" else "s"}`
-end
-
+--[=[
+	Private: Checks if the local player already has no restrictions, like being the creator
+	@private
+]=]
 local function _checkIfPlayerHasNoRestrictions(player: Player): boolean
 	-- Can be extended
 	return player.UserId == GameCreatorId
 end
 
+--[=[
+	Private: Checks if the local player can chat at all
+	@private
+]=]
 local function _canLocalPlayerChat(): boolean
 	local success: boolean, result: boolean | string | nil =
 		pcall(TextChatService.CanUserChatAsync, TextChatService, LocalPlayer.UserId)
@@ -114,34 +66,17 @@ local function _canLocalPlayerChat(): boolean
 	else
 		local message: string =
 			`[Talk Eligibility {version}] An error occured while calling TextChatService.CanUserChatAsync: {result}`
-		warn(message)
+		utils.wrappedWarn(message)
 		return false
 	end
 end
 
-local function _createSystemMessage(msgDict)
-	return '<font color="#'
-		.. msgDict["Color"]
-		.. '"><font size="'
-		.. msgDict["FontSize"]
-		.. '"><font face="'
-		.. msgDict["FontFace"]
-		.. '">'
-		.. msgDict["Text"]
-		.. "</font></font></font>"
-end
-
-local function _displayCannotChatAtAll(DefinedSystemChannel: TextChannel): ()
-	DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
-		Text = `{BASE_CONFIG.BeginningString}{BASE_CONFIG.CannotChatWithAllTemplate}`,
-		FontFace = BASE_CONFIG.FontFace,
-		Color = BASE_CONFIG.CannotChatColor3:ToHex(),
-		FontSize = BASE_CONFIG.FontSize,
-	}))
-end
-
+--[=[
+	Private: Displays a `can chat` template
+	@private
+]=]
 local function _displayCanChat(DefinedSystemChannel: TextChannel, template: string): ()
-	DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
+	_createSystemMessage(DefinedSystemChannel, {
 		Text = `{BASE_CONFIG.BeginningString}{template}`,
 		FontFace = BASE_CONFIG.FontFace,
 		Color = BASE_CONFIG.CanChatColor3:ToHex(),
@@ -149,8 +84,12 @@ local function _displayCanChat(DefinedSystemChannel: TextChannel, template: stri
 	}))
 end
 
+--[=[
+	Private: Displays a `cannot chat` template
+	@private
+]=]
 local function _displayCannotChat(DefinedSystemChannel: TextChannel, template: string): ()
-	DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
+	_createSystemMessage(DefinedSystemChannel, {
 		Text = `{BASE_CONFIG.BeginningString}{template}`,
 		FontFace = BASE_CONFIG.FontFace,
 		Color = BASE_CONFIG.CannotChatColor3:ToHex(),
@@ -158,22 +97,39 @@ local function _displayCannotChat(DefinedSystemChannel: TextChannel, template: s
 	}))
 end
 
+--[=[
+	Private: Displays a `not determined` template
+	@private
+]=]
+local function _displayNotDetermined(DefinedSystemChannel: TextChannel, template: string): ()
+    _createSystemMessage(DefinedSystemChannel, {
+		Text = `{BASE_CONFIG.BeginningString}{template}`,
+		FontFace = BASE_CONFIG.FontFace,
+		Color = BASE_CONFIG.NotDeterminedColor3:ToHex(),
+		FontSize = BASE_CONFIG.FontSize,
+	}))
+end
+
+--[=[
+	Private: Processes all talkable players
+	@private
+]=]
 local function _processAllTalkablePlayers(DefinedSystemChannel: TextChannel): ()
 	getTalkablePlayers:FireServer()
 
-	getTalkablePlayers.OnClientEvent:Connect(function(talkablePlayers: unknown | { [Player]: boolean })
+	getTalkablePlayers.OnClientEvent:Connect(function(talkablePlayers: unknown | { [Player]: boolean }): ()
 		if typeof(talkablePlayers) ~= "table" then
 			return
 		end
 
-		local totalPlayers = 0
+		local totalPlayers: number = 0
 
-		for _ in talkablePlayers do
-			totalTalkablePlayers += 1
+		for _: Player in talkablePlayers do
+			totalTalkablePlayers += 1 -- making total count since table is a dictionary
 		end
 
 		if #totalTalkablePlayers == 0 then
-			_displayCannotChatAtAll(DefinedSystemChannel)
+			_displayCannotChat(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
 		elseif #totalTalkablePlayers <= 10 then
 			if BASE_CONFIG.ShowTalkablePlayers then
 				_displayCanChat(
@@ -217,11 +173,22 @@ local function _processAllTalkablePlayers(DefinedSystemChannel: TextChannel): ()
 	end)
 end
 
-local function init()
-	SystemChannel = TextChatService:WaitForChild("TextChannels"):WaitForChild("RBXSystem")
+--[=[
+	Public: Inits the client module
+]=]
+local function init(): ()
+    if BASE_CONFIG.TextChatService ~= TextChatService then
+        TextChatService = BASE_CONFIG.TextChatService
+    end
 end
 
-local function start()
+--[=[
+	Public: Starts the client module
+]=]
+local function start(): ()
+    SystemChannel = TextChatService:WaitForChild("TextChannels"):WaitForChild("RBXSystem")
+    -- ^ Not moving this to init() since it yields
+
 	if not SystemChannel then
 		repeat
 			task.wait()
@@ -235,71 +202,45 @@ local function start()
 	local DefinedSystemChannel: TextChannel = SystemChannel -- adding this because of types again
 
 	if _canLocalPlayerChat() == false then
-		_displayCannotChatAtAll(DefinedSystemChannel)
-		return
-	end
-
-	if _checkIfPlayerHasNoRestrictions(LocalPlayer) then
-		DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
-			Text = `{BASE_CONFIG.BeginningString}{BASE_CONFIG.NoRestrictionsTemplate}`,
-			FontFace = BASE_CONFIG.FontFace,
-			Color = BASE_CONFIG.CanChatColor3:ToHex(),
-			FontSize = BASE_CONFIG.FontSize,
-		}))
+		_displayCannotChatAtAll(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
 		return
 	end
 
 	if #Players:GetPlayers() == 1 then
-		print("g")
-		DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
-			Text = `{BASE_CONFIG.BeginningString}{BASE_CONFIG.OnlyOneTemplate}`,
-			FontFace = BASE_CONFIG.FontFace,
-			Color = BASE_CONFIG.NotDeterminedColor3:ToHex(),
-			FontSize = BASE_CONFIG.FontSize,
-		}))
-	else
-		print("reach")
-		checkNewPlayer.OnClientEvent:Connect(function(canChat: boolean? | string?, newPlayer: Player?)
-			if not newPlayer then
-				return
-			end
-
-			if canChat == true then
-				DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
-					Text = `{BASE_CONFIG.BeginningString}{string.format(
-						BASE_CONFIG.CanChatTemplate,
-						newPlayer.DisplayName
-					)}`,
-					FontFace = BASE_CONFIG.FontFace,
-					Color = BASE_CONFIG.CanChatColor3:ToHex(),
-					FontSize = BASE_CONFIG.FontSize,
-				}))
-			elseif canChat == false then
-				DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
-					Text = `{BASE_CONFIG.BeginningString}{string.format(
-						BASE_CONFIG.CannotChatTemplate,
-						newPlayer.DisplayName
-					)}`,
-					FontFace = BASE_CONFIG.FontFace,
-					Color = BASE_CONFIG.CannotChatColor3:ToHex(),
-					FontSize = BASE_CONFIG.FontSize,
-				}))
-			elseif typeof(canChat) == "string" then
-				DefinedSystemChannel:DisplaySystemMessage(_createSystemMessage({
-					Text = `{BASE_CONFIG.BeginningString}{string.format(
-						BASE_CONFIG.NotDeterminedTemplate,
-						newPlayer.DisplayName
-					)}`,
-					FontFace = BASE_CONFIG.FontFace,
-					Color = BASE_CONFIG.NotDeterminedColor3:ToHex(),
-					FontSize = BASE_CONFIG.FontSize,
-				}))
-			end
-		end)
+		_displayNotDetermined(DefinedSystemChannel, BASE_CONFIG.OnlyOneTemplate)
+		-- not returning since more players may join later
 	end
+
+	if config.FLAGS.SHOW_NO_RESTRICTION == true then
+        if _checkIfPlayerHasNoRestrictions(LocalPlayer) then
+            _displayCanChat(DefinedSystemChannel, BASE_CONFIG.NoRestrictionsTemplate)
+			return
+		end
+	end
+
+	checkNewPlayer.OnClientEvent:Connect(function(canChat: boolean? | string?, newPlayer: Player?): ()
+		if not newPlayer then
+			return
+		end
+
+		if canChat == true then
+		    _displayCanChat(DefinedSystemChannel, string.format(BASE_CONFIG.CanChatTemplate, newPlayer.DisplayName))
+		elseif canChat == false then
+		    _displayCannotChat(DefinedSystemChannel, string.format(
+		        BASE_CONFIG.CannotChatTemplate,
+				newPlayer.DisplayName
+            ))
+		elseif typeof(canChat) == "string" then
+		    _displayNotDetermined(DefinedSystemChannel, string.format(
+				BASE_CONFIG.NotDeterminedTemplate,
+				newPlayer.DisplayName
+			)
+		end
+	end)
 end
 
-return {
+-- Return public variables and API
+return table.freeze{
 	name = "show",
 	init = init,
 	start = start,

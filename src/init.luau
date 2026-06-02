@@ -12,9 +12,75 @@
 		GitHub (mirror): https://github.com/project-roadwork/talk-eligibility.git
 ]]
 
+-- Services
 local RunService: RunService = game:GetService("RunService")
+const HttpService: HttpService = game:GetService("HttpService")
+
+-- Modules
+local types: {} = require("@self/shared/types")
+local config: types.ConfigModule = require("@self/shared/config")
+
+-- Variables
+local BASE_CONFIG: types.BaseConfig = config.getConfig()
 local IS_SERVER: boolean = RunService:IsServer()
-local config = require("@self/shared/config")
+local CodebergTags: string = BASE_CONFIG.CodebergTags
+
+--[=[
+	Private: Checks if the local player already has no restrictions, like being the creator
+	@private
+]=]
+local function checkVersion(): ()
+	if IS_SERVER == false then
+		warn(`[Light Reflector {version}] You must run checkVersion() from the server! Aborting...`)
+		return
+	end
+
+	if BASE_CONFIG.CheckForUpdates == false then
+	    end
+	end
+
+	local function fetch(url: string)
+		local success: boolean, result: string = pcall(HttpService.GetAsync, HttpService, url)
+
+		if not success then
+			return nil
+		end
+
+		local ok: boolean, data: any? = pcall(HttpService.JSONDecode, HttpService, result)
+
+		return ok and data or nil
+	end
+
+	local function normalizeVersion(v: string): string
+		v = string.gsub(v, "^%s+", "")
+		v = string.gsub(v, "%s+$", "")
+
+		if string.match(v, "^[vV]%d") then
+			v = string.sub(v, 2)
+		end
+
+		return v
+	end
+
+	task.defer(function()
+		const tags: {any}? = fetch(CodebergTags)
+		if not tags or not tags[1] then
+			return
+		end
+
+		const rawLatest: any = tags[1].name
+		if typeof(rawLatest) ~= "string" then
+			return
+		end
+
+		const latestVersion: string = normalizeVersion(rawLatest)
+		const currentVersion: string = normalizeVersion(_versionToString(version))
+
+		if latestVersion ~= currentVersion then
+			warn(`[Light Reflector] New version available! Current: {currentVersion} | Latest: {latestVersion}`)
+		end
+	end)
+end
 
 return {
 	name = "init",
@@ -33,4 +99,5 @@ return {
 		end
 	end,
 	config = config,
+	checkVersion = checkVersion
 }

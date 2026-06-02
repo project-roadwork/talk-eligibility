@@ -7,8 +7,10 @@
 
 ]]
 
+--!native
+--!strict
+
 -- Variables
--- local LOCKED: boolean = false
 const version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "beta", build = 1, metadata = ""})
 
 --[=[
@@ -32,6 +34,16 @@ end
 -- Base Config
 const BASE_CONFIG = {
     LOCKED = false,
+
+    CODEBERG = "https://codeberg.org/project-roadwork/talk-eligibility.git",
+	GITHUB = "https://github.com/project-roadwork/talk-eligibility.git",
+
+	CheckForUpdates = true,
+	ShowPrints = true,
+	ShowWarns = true,
+
+    CodebergTags = "https://codeberg.org/api/v1/repos/project-roadwork/light-reflector/tags",
+
     _VERSION = _versionToString(version),
     TextChatService = game:GetService("TextChatService"),
 
@@ -55,31 +67,24 @@ const BASE_CONFIG = {
     FontSize = 15,
     FontFace = "Gotham",
     CanChatColor3 = Color3.fromRGB(198, 255, 192),
-    CannotChatColor3 = Color3.fromRGB(255, 153, 253),
+    CannotChatColor3 = Color3.fromRGB(255, 142, 142),
     NotDeterminedColor3 = Color3.fromRGB(210, 210, 210),
 }
 
 -- Flags
 const FLAGS = {
-	["PCALL"] = false, -- Enable protected calls or not. Useful for debugging.
-	["TRACK_ANCESTRY_CONNECTIONS"] = false, -- Enable to track ancestry connections
-	["NO_STATE_POOLING"] = false, -- Disables pooling/recycling of states (tables)
+	["SHOW_NO_RESTRICTION"] = false,
 }
 
 --[=[
 	Public: Returns the entire config
-
-	[Git Repository](https://codeberg.org/project-roadwork/talk-eligibility.git)
 ]=]
 const function getConfig(): BASE_CONFIG
 	return BASE_CONFIG
 end
 
-
 --[=[
 	Public: Deep merges two dictionaries
-
-	[Git Repository](https://codeberg.org/project-roadwork/light-reflector.git)
 ]=]
 const function _deepMerge(defaults: Dict, overrides: Dict, path: string?): ()
 	path = path or ""
@@ -104,11 +109,8 @@ const function _deepMerge(defaults: Dict, overrides: Dict, path: string?): ()
 	end
 end
 
-
 --[=[
 	Public: Assigns config via deep merge
-
-	[Git Repository](https://codeberg.org/project-roadwork/light-reflector.git)
 ]=]
 const function applyOverrides(userConfig: any): BASE_CONFIG
 	if typeof(userConfig) ~= "table" then
@@ -119,6 +121,14 @@ const function applyOverrides(userConfig: any): BASE_CONFIG
 
 	return BASE_CONFIG
 end
+
+-- Returns
+local configReturns = table.freeze({
+	name = "config",
+	FLAGS = FLAGS,
+	getConfig = getConfig,
+	applyOverrides = applyOverrides
+})
 
 -- Types
 export type BASE_CONFIG = typeof(BASE_CONFIG)
@@ -134,9 +144,4 @@ export type Version = {
 }
 
 -- Return public variables and API
-return table.freeze({
-	name = "config",
-	FLAGS = FLAGS,
-	getConfig = getConfig,
-	applyOverrides = applyOverrides
-})
+return configReturns
