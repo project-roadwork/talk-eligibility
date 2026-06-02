@@ -39,9 +39,19 @@ export type Utils = {
 	read name: string,
 	read wrappedWarn: (string) -> (),
 	read wrappedPrint: (string) -> (),
+	read versionToString: (Version) -> string,
 	read createSystemMessage: createSystemMessage,
 	read createMultiplePlayerString: createMultiplePlayerString,
 	read createMultiplePlayerStringWithOmit: createMultiplePlayerStringWithOmit,
+}
+
+export type Version = {
+	read major: number,
+	read minor: number,
+	read patch: number,
+	read pre_release: string,
+	read build: number,
+	read metadata: string,
 }
 
 return {}

@@ -16,6 +16,7 @@ local types: {} = require("./types")
 
 -- Variables
 local BASE_CONFIG: types.BaseConfig = config.getConfig()
+local version: string = BASE_CONFIG._VERSION
 local _luauwarn: (string) -> () = warn
 local _luauprint: (string) -> () = print
 
@@ -24,7 +25,7 @@ local _luauprint: (string) -> () = print
 ]=]
 local function wrappedWarn(message: string)
 	if BASE_CONFIG.ShowWarns then
-		_luauwarn(message)
+		_luauwarn(`[Light Reflector {version}] {message}`)
 	end
 end
 
@@ -33,8 +34,25 @@ end
 ]=]
 local function wrappedPrint(message: string)
 	if BASE_CONFIG.ShowPrints then
-		_luauprint(message)
+		_luauprint(`[Light Reflector {version}] {message}`)
 	end
+end
+
+--[=[
+	Public: Converts version to string
+]=]
+const function versionToString(v: types.Version): string
+	local str: string = `{v.major}.{v.minor}.{v.patch}`
+	if v.pre_release and v.pre_release ~= "" then
+		str = `{str}-{v.pre_release}`
+	end
+	if v.build and v.build >= 0 then
+		str = `{str}.{v.build}`
+	end
+	if v.metadata and v.metadata ~= "" then
+		str = `{str}+{v.metadata}`
+	end
+	return str
 end
 
 --[=[
@@ -129,6 +147,7 @@ return table.freeze({
 	name = "utils",
 	wrappedWarn = wrappedWarn,
 	wrappedPrint = wrappedPrint,
+	versionToString = versionToString,
 	createSystemMessage = createSystemMessage,
 	createMultiplePlayerString = createMultiplePlayerString,
 	createMultiplePlayerStringWithOmit = createMultiplePlayerStringWithOmit,

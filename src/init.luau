@@ -19,9 +19,11 @@ const HttpService: HttpService = game:GetService("HttpService")
 -- Modules
 local types: {} = require("@self/shared/types")
 local config: types.ConfigModule = require("@self/shared/config")
+local utils: types.Utils = require("@self/shared/utils")
 
 -- Variables
 local BASE_CONFIG: types.BaseConfig = config.getConfig()
+local version: string = BASE_CONFIG._VERSION
 local IS_SERVER: boolean = RunService:IsServer()
 local CodebergTags: string = BASE_CONFIG.CodebergTags
 
@@ -31,12 +33,12 @@ local CodebergTags: string = BASE_CONFIG.CodebergTags
 ]=]
 local function checkVersion(): ()
 	if IS_SERVER == false then
-		warn(`[Light Reflector {version}] You must run checkVersion() from the server! Aborting...`)
+		utils.wrappedWarn(`You must run checkVersion() from the server! Aborting...`)
 		return
 	end
 
 	if BASE_CONFIG.CheckForUpdates == false then
-	    end
+        return
 	end
 
 	local function fetch(url: string)
@@ -74,10 +76,11 @@ local function checkVersion(): ()
 		end
 
 		const latestVersion: string = normalizeVersion(rawLatest)
-		const currentVersion: string = normalizeVersion(_versionToString(version))
+		const currentVersion: string = normalizeVersion(utils.versionToString(version))
 
 		if latestVersion ~= currentVersion then
-			warn(`[Light Reflector] New version available! Current: {currentVersion} | Latest: {latestVersion}`)
+			print(`[Light Reflector] New version available! Current: {currentVersion} | Latest: {latestVersion}`)
+			--^ not using wrapped since it has to print anyway
 		end
 	end)
 end

@@ -34,7 +34,6 @@ local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }> =
 
 -- Variables
 local BASE_CONFIG: types.BaseConfig = config.getConfig()
-local version: string = BASE_CONFIG._VERSION
 
 --[=[
 	Private: Checks if the local player already has no restrictions, like being the creator
@@ -47,8 +46,7 @@ local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | st
 	if success then
 		return result == true -- added `== true` for typing reasons
 	else
-		local message: string =
-			`[Talk Eligibility {version}] An error occured while calling TextChatService.CanUsersChatAsync: {result}`
+		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync: {result}`
 		utils.wrappedWarn(message)
 		return message
 	end
@@ -62,7 +60,7 @@ local function _getTalkablePlayersfromPlayer(fromPlayer: Player): { [Player]: bo
 	local talkablePlayers: { [Player]: boolean } = {}
 
 	for _: number, existingPlayer: Player in Players:GetPlayers() do
-		local result = _canUsersChat(fromPlayer.UserId, existingPlayer.UserId)
+		local result: boolean | string = _canUsersChat(fromPlayer.UserId, existingPlayer.UserId)
 
 		if typeof(result) == "string" then
 			result = false -- a returned string means that the request failed
