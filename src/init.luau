@@ -38,7 +38,7 @@ local function checkVersion(): ()
 	end
 
 	if BASE_CONFIG.CheckForUpdates == false then
-        return
+		return
 	end
 
 	local function fetch(url: string)
@@ -65,18 +65,18 @@ local function checkVersion(): ()
 	end
 
 	task.defer(function()
-		const tags: {any}? = fetch(CodebergTags)
+		local tags: { any }? = fetch(CodebergTags)
 		if not tags or not tags[1] then
 			return
 		end
 
-		const rawLatest: any = tags[1].name
+		local rawLatest: any = tags[1].name
 		if typeof(rawLatest) ~= "string" then
 			return
 		end
 
-		const latestVersion: string = normalizeVersion(rawLatest)
-		const currentVersion: string = normalizeVersion(utils.versionToString(version))
+		local latestVersion: string = normalizeVersion(rawLatest)
+		local currentVersion: string = normalizeVersion(utils.versionToString(version))
 
 		if latestVersion ~= currentVersion then
 			print(`[Light Reflector] New version available! Current: {currentVersion} | Latest: {latestVersion}`)
@@ -102,5 +102,5 @@ return {
 		end
 	end,
 	config = config,
-	checkVersion = checkVersion
+	checkVersion = checkVersion,
 }
