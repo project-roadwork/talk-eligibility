@@ -87,7 +87,7 @@ local BASE_CONFIG = {
 }
 
 -- Flags
-const FLAGS = {
+local FLAGS = {
 	["SHOW_NO_RESTRICTION"] = false,
 	-- ^ Displays no restriction messages like if the player is the creator. This may be inaccurate.
 }
@@ -95,14 +95,14 @@ const FLAGS = {
 --[=[
 	Public: Returns the entire config
 ]=]
-const function getConfig(): BASE_CONFIG
+local function getConfig(): BASE_CONFIG
 	return BASE_CONFIG
 end
 
 --[=[
 	Public: Deep merges two dictionaries
 ]=]
-const function _deepMerge(defaults: Dict, overrides: Dict, path: string?): ()
+local function _deepMerge(defaults: Dict, overrides: Dict, path: string?): ()
 	path = path or ""
 
 	for key, value in next, overrides do
@@ -128,7 +128,7 @@ end
 --[=[
 	Public: Assigns config via deep merge
 ]=]
-const function applyOverrides(userConfig: any): BASE_CONFIG
+local function applyOverrides(userConfig: any): BASE_CONFIG
 	if typeof(userConfig) ~= "table" then
 		return BASE_CONFIG
 	end
