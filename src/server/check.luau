@@ -29,7 +29,7 @@ local checkNewPlayer: QuickNet.NetworkEvent<(boolean | string)?, Player?> = Quic
 	data.optional(data.Player)
 )
 
-local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }> =
+local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }?> =
 	QuickNet:register("getTalkablePlayers", data.optional({ [data.Player] = data.Boolean }))
 
 -- Variables

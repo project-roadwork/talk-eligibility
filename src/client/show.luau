@@ -29,7 +29,7 @@ local checkNewPlayer: QuickNet.NetworkEvent<(boolean | string)?, Player?> = Quic
 	data.optional(data.Player)
 )
 
-local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }> =
+local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }?> =
 	QuickNet:register("getTalkablePlayers", data.optional({ [data.Player] = data.Boolean }))
 
 -- Variables
@@ -57,7 +57,7 @@ end
 	Private: Checks if the local player can chat at all
 	@private
 ]=]
-local function _canLocalPlayerChat(): boolean
+local function _canLocalPlayerChat(LocalPlayer: Player): boolean
 	local success: boolean, result: boolean | string | nil =
 		pcall(TextChatService.CanUserChatAsync, TextChatService, LocalPlayer.UserId)
 
@@ -116,20 +116,20 @@ end
 local function _processAllTalkablePlayers(DefinedSystemChannel: TextChannel): ()
 	getTalkablePlayers:FireServer()
 
-	getTalkablePlayers.OnClientEvent:Connect(function(talkablePlayers: unknown | { [Player]: boolean }): ()
-		if typeof(talkablePlayers) ~= "table" then
+	getTalkablePlayers.OnClientEvent:Connect(function(talkablePlayers: { [Player]: boolean }?): ()
+		if talkablePlayers == nil then
 			return
 		end
 
-		local totalPlayers: number = 0
+		local totalTalkablePlayers: number = 0
 
 		for _: Player in talkablePlayers do
 			totalTalkablePlayers += 1 -- making total count since table is a dictionary
 		end
 
-		if #totalTalkablePlayers == 0 then
+		if totalTalkablePlayers == 0 then
 			_displayCannotChat(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
-		elseif #totalTalkablePlayers <= 10 then
+		elseif totalTalkablePlayers <= 10 then
 			if BASE_CONFIG.ShowTalkablePlayers then
 				_displayCanChat(
 					DefinedSystemChannel,
@@ -198,10 +198,14 @@ local function start(): ()
 		return -- adding this because of types
 	end
 
+	if not LocalPlayer then
+		return -- adding this because of types
+	end
+
 	local DefinedSystemChannel: TextChannel = SystemChannel -- adding this because of types again
 
-	if _canLocalPlayerChat() == false then
-		_displayCannotChatAtAll(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
+	if _canLocalPlayerChat(LocalPlayer) == false then
+		_displayCannotChat(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
 		return
 	end
 
