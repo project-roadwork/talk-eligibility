@@ -59,14 +59,14 @@ local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | st
 		return message
 	end
 
-	-- Second test
+	-- Second test (This is off by default, but is only there should it be needed)
 	local success2: boolean, result2: boolean | string | nil =
 		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdTo, userIdFrom)
 
 	if success2 then
 		return firstTest or (result2 == true)
 	else
-		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync (Test 2): {result}.`
+		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync (Test 2): {result2}.`
 		utils.wrappedWarn(message)
 		return message
 	end
@@ -103,15 +103,20 @@ local function _onPlayerAdded(newPlayer: Player): ()
 		return
 	end
 
-	for _: number, existingPlayer: Player in Players:GetPlayers() do
-		if existingPlayer ~= newPlayer then
-			defer(function()
-				task.wait(2)
+	defer(function()
+		task.wait(2)
+
+		if newPlayer == nil or newPlayer:IsDescendantOf(game) == false then
+			return
+		end
+
+		for _: number, existingPlayer: Player in Players:GetPlayers() do
+			if existingPlayer ~= newPlayer then
 				local canChat: boolean | string = _canUsersChat(existingPlayer.UserId, newPlayer.UserId)
 				checkNewPlayer:FireClient(existingPlayer, canChat, newPlayer)
-			end)
+			end
 		end
-	end
+	end)
 end
 
 --[=[
