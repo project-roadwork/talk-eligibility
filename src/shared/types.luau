@@ -54,4 +54,12 @@ export type Version = {
 	read metadata: string,
 }
 
+export type TalkEligibility = {
+	read name: string,
+	read init: () -> (),
+	read start: () -> (),
+	config: ConfigModule,
+	checkVersion: () -> (),
+}
+
 return {}
