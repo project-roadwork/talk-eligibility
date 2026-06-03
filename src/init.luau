@@ -26,6 +26,8 @@ local BASE_CONFIG: types.BaseConfig = config.getConfig()
 local version: string = BASE_CONFIG._VERSION
 local IS_SERVER: boolean = RunService:IsServer()
 local CodebergTags: string = BASE_CONFIG.CodebergTags
+local started: boolean = false
+local initialized: boolean = false
 
 --[=[
 	Private: Checks if the local player already has no restrictions, like being the creator
@@ -85,21 +87,41 @@ local function checkVersion(): ()
 	end)
 end
 
+local function init(): ()
+	if initialized == true then
+		utils.wrappedWarn(`Already initialized! Aborting...`)
+		return
+	end
+
+	if IS_SERVER then
+		require("@self/server/check").init()
+	else
+		require("@self/client/show").init()
+	end
+end
+
 return {
 	name = "init",
-	init = function()
-		if IS_SERVER then
-			require("@self/server/check").init()
-		else
-			require("@self/client/show").init()
-		end
-	end,
+	init = init,
 	start = function()
+		if started == true then
+			utils.wrappedWarn(`Already started! Aborting...`)
+			return
+		end
+
+		if initialized == false then
+			init()
+		end
+
+		started = true
+
 		if IS_SERVER then
 			require("@self/server/check").start()
 		else
 			require("@self/client/show").start()
 		end
+
+		utils.wrappedPrint("Successfully started.")
 	end,
 	config = config,
 	checkVersion = checkVersion,
