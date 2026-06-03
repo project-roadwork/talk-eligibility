@@ -16,9 +16,10 @@ local Players: Players = game:GetService("Players")
 
 -- Modules
 local QuickNet: QuickNet.QuickNet = require("../shared/net/QuickNet")
+local types: {} = require("../shared/types")
 local config: types.ConfigModule = require("../shared/config")
 local utils: types.Utils = require("../shared/utils")
-local types: {} = require("../shared/types")
+local defer: types.FastDeferSafe = require("../shared/defer")
 
 -- Register Net Events
 local data: QuickNet.DataTypes = QuickNet.Data
@@ -114,6 +115,7 @@ end
 	@private
 ]=]
 local function _processAllTalkablePlayers(DefinedSystemChannel: TextChannel): ()
+	task.wait(2)
 	getTalkablePlayers:FireServer()
 
 	getTalkablePlayers.OnClientEvent:Connect(function(talkablePlayers: { [Player]: boolean }?): ()
@@ -121,32 +123,31 @@ local function _processAllTalkablePlayers(DefinedSystemChannel: TextChannel): ()
 			return
 		end
 
+		local PlayersList = Players:GetPlayers()
 		local totalTalkablePlayers: number = 0
+		local totalNonTalkablePlayers: number = 0
 
-		for _: Player in talkablePlayers do
-			totalTalkablePlayers += 1 -- making total count since table is a dictionary
+		for _: Player, canChat: boolean in talkablePlayers do
+			if canChat then
+				totalTalkablePlayers += 1 -- making total count since table is a dictionary
+			else
+				totalNonTalkablePlayers += 1
+			end
 		end
 
 		if totalTalkablePlayers == 0 then
 			_displayCannotChat(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
-		elseif totalTalkablePlayers <= 10 then
-			if BASE_CONFIG.ShowTalkablePlayers then
+		elseif totalTalkablePlayers >= #PlayersList - 1 then
+			_displayCanChat(DefinedSystemChannel, BASE_CONFIG.CanChatWithAllTemplate)
+		end
+
+		if BASE_CONFIG.ShowTalkablePlayers and totalTalkablePlayers ~= 0 then
+			if totalTalkablePlayers < BASE_CONFIG.MaxTalkablePlayersShown then
 				_displayCanChat(
 					DefinedSystemChannel,
 					string.format(BASE_CONFIG.CanChatWithMultiple, _createMultiplePlayerString(talkablePlayers, true))
 				)
-			end
-			if BASE_CONFIG.ShowNonTalkablePlayers then
-				_displayCanChat(
-					DefinedSystemChannel,
-					string.format(
-						BASE_CONFIG.CannotChatWithMultiple,
-						_createMultiplePlayerString(talkablePlayers, false)
-					)
-				)
-			end
-		else
-			if BASE_CONFIG.ShowTalkablePlayers then
+			else
 				_displayCanChat(
 					DefinedSystemChannel,
 					string.format(
@@ -155,8 +156,20 @@ local function _processAllTalkablePlayers(DefinedSystemChannel: TextChannel): ()
 					)
 				)
 			end
-			if BASE_CONFIG.ShowNonTalkablePlayers then
-				_displayCanChat(
+		end
+
+		if BASE_CONFIG.ShowNonTalkablePlayers and totalNonTalkablePlayers ~= 0 and totalTalkablePlayers ~= 0 then
+			print(totalNonTalkablePlayers, totalTalkablePlayers)
+			if totalNonTalkablePlayers < BASE_CONFIG.MaxTalkablePlayersShown then
+				_displayCannotChat(
+					DefinedSystemChannel,
+					string.format(
+						BASE_CONFIG.CannotChatWithMultiple,
+						_createMultiplePlayerString(talkablePlayers, false)
+					)
+				)
+			else
+				_displayCannotChat(
 					DefinedSystemChannel,
 					string.format(
 						BASE_CONFIG.CannotChatWithMultiple,
@@ -205,13 +218,15 @@ local function start(): ()
 	local DefinedSystemChannel: TextChannel = SystemChannel -- adding this because of types again
 
 	if _canLocalPlayerChat(LocalPlayer) == false then
-		_displayCannotChat(DefinedSystemChannel, BASE_CONFIG.CannotChatWithAllTemplate)
+		_displayCannotChat(DefinedSystemChannel, BASE_CONFIG.RestrictedTemplate)
 		return
 	end
 
 	if #Players:GetPlayers() == 1 then
 		_displayNotDetermined(DefinedSystemChannel, BASE_CONFIG.OnlyOneTemplate)
 		-- not returning since more players may join later
+	else
+		defer(_processAllTalkablePlayers, DefinedSystemChannel)
 	end
 
 	if config.FLAGS.SHOW_NO_RESTRICTION == true then
@@ -226,6 +241,8 @@ local function start(): ()
 			return
 		end
 
+		print(`player {newPlayer.Name} can {canChat}`)
+		print(tostring(canChat))
 		if canChat == true then
 			_displayCanChat(DefinedSystemChannel, string.format(BASE_CONFIG.CanChatTemplate, newPlayer.DisplayName))
 		elseif canChat == false then

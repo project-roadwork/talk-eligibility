@@ -11,6 +11,7 @@
 --!strict
 
 local config = require("./config")
+local defer = require("./defer")
 
 export type ShowModule = {
 	read name: string,
@@ -53,6 +54,8 @@ export type Version = {
 	read build: number,
 	read metadata: string,
 }
+
+export type FastDeferSafe = typeof(defer) -- have to use this since it errors when I try `...:`
 
 export type TalkEligibility = {
 	read name: string,

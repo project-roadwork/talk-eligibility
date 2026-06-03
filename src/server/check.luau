@@ -19,6 +19,7 @@ local QuickNet: QuickNet.QuickNet = require("../shared/net/QuickNet")
 local types: {} = require("../shared/types")
 local config: types.ConfigModule = require("../shared/config")
 local utils: types.Utils = require("../shared/utils")
+local defer: types.FastDeferSafe = require("../shared/defer")
 
 -- Register Net Events
 local data: QuickNet.DataTypes = QuickNet.Data
@@ -40,13 +41,32 @@ local BASE_CONFIG: types.BaseConfig = config.getConfig()
 	@private
 ]=]
 local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | string
+	local firstTest: boolean = false
+
+	-- First test
 	local success: boolean, result: boolean | string | nil =
 		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdFrom, userIdTo)
 
 	if success then
-		return result == true -- added `== true` for typing reasons
+		if BASE_CONFIG.CanDoSecondTests == true then
+			firstTest = (result == true)
+		else
+			return (result == true)
+		end
 	else
-		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync: {result}`
+		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync (Test 1): {result}.`
+		utils.wrappedWarn(message)
+		return message
+	end
+
+	-- Second test
+	local success2: boolean, result2: boolean | string | nil =
+		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdTo, userIdFrom)
+
+	if success2 then
+		return firstTest or (result2 == true)
+	else
+		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync (Test 2): {result}.`
 		utils.wrappedWarn(message)
 		return message
 	end
@@ -60,13 +80,15 @@ local function _getTalkablePlayersfromPlayer(fromPlayer: Player): { [Player]: bo
 	local talkablePlayers: { [Player]: boolean } = {}
 
 	for _: number, existingPlayer: Player in Players:GetPlayers() do
-		local result: boolean | string = _canUsersChat(fromPlayer.UserId, existingPlayer.UserId)
+		if existingPlayer ~= fromPlayer then
+			local result: boolean | string = _canUsersChat(fromPlayer.UserId, existingPlayer.UserId)
 
-		if typeof(result) == "string" then
-			result = false -- a returned string means that the request failed
+			if typeof(result) == "string" then
+				result = false -- a returned string means that the request failed
+			end
+
+			talkablePlayers[existingPlayer] = result :: boolean
 		end
-
-		talkablePlayers[existingPlayer] = result :: boolean
 	end
 
 	return talkablePlayers
@@ -77,8 +99,18 @@ end
 	@private
 ]=]
 local function _onPlayerAdded(newPlayer: Player): ()
+	if BASE_CONFIG.CanCheckOnNewPlayerJoin == false then
+		return
+	end
+
 	for _: number, existingPlayer: Player in Players:GetPlayers() do
-		checkNewPlayer:FireClient(existingPlayer, _canUsersChat(existingPlayer.UserId, newPlayer.UserId), newPlayer)
+		if existingPlayer ~= newPlayer then
+			defer(function()
+				task.wait(2)
+				local canChat: boolean | string = _canUsersChat(existingPlayer.UserId, newPlayer.UserId)
+				checkNewPlayer:FireClient(existingPlayer, canChat, newPlayer)
+			end)
+		end
 	end
 end
 

@@ -25,7 +25,7 @@ local _luauprint: (string) -> () = print
 ]=]
 local function wrappedWarn(message: string)
 	if BASE_CONFIG.ShowWarns then
-		_luauwarn(`[Light Reflector {version}] {message}`)
+		_luauwarn(`[Talk Eligibility {version}] {message}`)
 	end
 end
 
@@ -34,7 +34,7 @@ end
 ]=]
 local function wrappedPrint(message: string)
 	if BASE_CONFIG.ShowPrints then
-		_luauprint(`[Light Reflector {version}] {message}`)
+		_luauprint(`[Talk Eligibility {version}] {message}`)
 	end
 end
 

@@ -81,7 +81,7 @@ local function checkVersion(): ()
 		local currentVersion: string = normalizeVersion(utils.versionToString(version))
 
 		if latestVersion ~= currentVersion then
-			print(`[Light Reflector] New version available! Current: {currentVersion} | Latest: {latestVersion}`)
+			print(`[Talk Eligibility] New version available! Current: {currentVersion} | Latest: {latestVersion}`)
 			--^ not using wrapped since it has to print anyway
 		end
 	end)
