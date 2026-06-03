@@ -9,7 +9,7 @@
 
 **Install via pesde:**
 ```bash
-pesde add project_roadwork/light_reflector@version
+pesde add project_roadwork/talk_eligibility@version
 pesde install
 ```
 *Replace version with the current version of the package.*
@@ -19,7 +19,7 @@ Add this to your `wally.toml` file:
 
 ```toml [wally.toml]
 [dependencies]
-lightreflector = "illinois-roadbuff/light-reflector@version"
+lightreflector = "illinois-roadbuff/talk-eligibility@version"
 ```
 *Replace version with the current version of the package.*
 
