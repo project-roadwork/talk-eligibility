@@ -67,12 +67,18 @@ local BASE_CONFIG = {
     ShowNonTalkablePlayers = true,
 
     CanDoSecondTests = false,
+    -- ^ This may not be neccesary, but it checks the other way around.
+    --   e.g., if (player1 and player2) *AND* (player2 and player1)
+
     CanCheckOnNewPlayerJoin = true,
+    -- ^ Check if the existing players can chat with any new player.
+    --   May spam the chat with servers which has high capacity
 
     -- Max amount shown until cutoff (e.g., plr1, plr2, and 2 others)
     MaxTalkablePlayersShown = 5,
     MaxNonTalkablePlayersShown = 5,
 
+    -- Preview
     FontSize = 13,
     FontFace = "Gotham",
     CanChatColor3 = Color3.fromRGB(198, 255, 192),

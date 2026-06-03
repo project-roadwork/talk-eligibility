@@ -42,20 +42,31 @@ TalkEligibility.start()
 ## Configuration
 ```luau
 local BASE_CONFIG = {
+    LOCKED = false,
+    _VERSION = _versionToString(version),
 
-	  CheckForUpdates = true,
-	  ShowPrints = true,
-	  ShowWarns = true,
+    -- Repositories
+    CODEBERG = "https://codeberg.org/project-roadwork/talk-eligibility.git",
+	GITHUB = "https://github.com/project-roadwork/talk-eligibility.git",
+
+	CodebergTags = "https://codeberg.org/api/v1/repos/project-roadwork/light-reflector/tags",
+
+	CheckForUpdates = true,
+	ShowPrints = true,
+	ShowWarns = true,
 
     TextChatService = game:GetService("TextChatService"),
     --^ Change this if you are using something like OpenTextChatService
 
-    BeginningString = `<b><font color="#{Color3.fromRGB(210, 210, 210):ToHex()}">[Talk Eligibility]</font></b> `,
+    --BeginningString = `<b><font color="#{Color3.fromRGB(210, 210, 210):ToHex()}">[Talk Eligibility]</font></b> `,
+    BeginningString = ``,
     CanChatTemplate = "🔊 %s joined. You are able to talk with this player.",
     CannotChatTemplate = "🔇 %s joined. You are not able to talk with this player.",
     NotDeterminedTemplate = "❔%s joined. You may or may not be able to talk with this player.",
     NoRestrictionsTemplate = "🔊 You can talk to everyone in this server.",
-    CannotChatWithAllTemplate = "🔇 You cannot talk to anyone in this server.",
+    RestrictedTemplate = "🔇 You cannot talk to anyone in this server.",
+    CanChatWithAllTemplate = "🔊 You can currently talk to everyone in this server.",
+    CannotChatWithAllTemplate = "🔇 You currently cannot talk to anyone in this server.",
     OnlyOneTemplate = "🔇 You are the only person in this server.",
 
     CanChatWithMultiple = "🔊 You can talk with the following players: %s.",
@@ -64,11 +75,20 @@ local BASE_CONFIG = {
     ShowTalkablePlayers = true,
     ShowNonTalkablePlayers = true,
 
-    -- Max amount shown until cutoff (e.g., plr1, plr2, and 2 others)
-    MaxTalkablePlayersShown = 10,
-    MaxNonTalkablePlayersShown = 10,
+    CanDoSecondTests = false, 
+    -- ^ This may not be neccesary, but it checks the other way around.
+    --   e.g., if (player1 and player2) *AND* (player2 and player1)
+    
+    CanCheckOnNewPlayerJoin = true,
+    -- ^ Check if the existing players can chat with any new player. 
+    --   May spam the chat with servers which has high capacity
 
-    FontSize = 15,
+    -- Max amount shown until cutoff (e.g., plr1, plr2, and 2 others)
+    MaxTalkablePlayersShown = 5,
+    MaxNonTalkablePlayersShown = 5,
+
+    -- Preview
+    FontSize = 13,
     FontFace = "Gotham",
     CanChatColor3 = Color3.fromRGB(198, 255, 192),
     CannotChatColor3 = Color3.fromRGB(255, 142, 142),
