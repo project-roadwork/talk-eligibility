@@ -1,6 +1,6 @@
 [package]
 name = "illinois-roadbuff/talk-eligibility"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 description = "Checks which players can chat with one another based on ROBLOX chat permissions."
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
