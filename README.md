@@ -1,6 +1,9 @@
 # Talk Eligibility
 **A typed library that checks which players can chat with one another based on ROBLOX chat permissions.**
 
+> [!WARNING]
+> ***I don't recommend using this module as it has multiple issues. I'd recommend using something like [AgeGroupAssistant](https://devforum.roblox.com/t/age-group-assistant-inform-players-about-who-they-can-chat-with/4250545) for now.***
+
 > [!NOTE]
 > ***You must have the new Luau type solver enabled in `Workspace` in order to receive proper types.***
 
@@ -29,6 +32,7 @@ wally install
 ```
 
 ## Quick Start
+***Make sure to do this for both the server and client.***
 ```luau
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TalkEligibility = require(ReplicatedStorage.Packages["talk-eligibility"])

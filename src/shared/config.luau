@@ -49,7 +49,7 @@ local BASE_CONFIG = {
     TextChatService = game:GetService("TextChatService"),
     --^ Change this if you are using something like OpenTextChatService
 
-    --BeginningString = `<b><font color="#{Color3.fromRGB(210, 210, 210):ToHex()}">[Talk Eligibility]</font></b> `,
+    --BeginningString = `<b><font color="#{Color3.fromRGB(210, 210, 210):ToHex()}">[System Message]</font></b> `,
     BeginningString = ``,
     CanChatTemplate = "🔊 %s joined. You are able to talk with this player.",
     CannotChatTemplate = "🔇 %s joined. You are not able to talk with this player.",
