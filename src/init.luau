@@ -34,11 +34,6 @@ local initialized: boolean = false
 	@private
 ]=]
 local function checkVersion(): ()
-	if IS_SERVER == false then
-		utils.wrappedWarn(`You must run checkVersion() from the server! Aborting...`)
-		return
-	end
-
 	if BASE_CONFIG.CheckForUpdates == false then
 		return
 	end
@@ -120,6 +115,8 @@ return {
 		else
 			require("@self/client/show").start()
 		end
+
+		checkVersion()
 
 		utils.wrappedPrint("Successfully started.")
 	end,
