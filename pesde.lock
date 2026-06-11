@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "project_roadwork/talk_eligibility"
-version = "1.0.0-alpha.4"
+version = "1.0.0-beta.1"
 target = "roblox"
 
 [graph."0x5eal/unzip@0.2.1 luau".pkg_ref]

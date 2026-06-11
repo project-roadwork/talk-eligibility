@@ -1,5 +1,5 @@
 name = "project_roadwork/talk_eligibility"
-version = "1.0.0-alpha.4"
+version = "1.0.0-beta.1"
 description = "Checks which players can chat with one another based on ROBLOX chat permissions."
 authors = ["Illinois_Roadbuff [Rogue Jr]"]
 repository = "https://codeberg.org/project-roadwork/talk-eligibility.git"
