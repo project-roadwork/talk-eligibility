@@ -132,7 +132,7 @@ end
 local function _onPlayerRemoving(player: Player): ()
 	talkableCache[player] = nil
 
-	for _: number, playerTable: { [Player]: boolean } in talkableCache do
+	for _: Player, playerTable: { [Player]: boolean } in talkableCache do
 		playerTable[player] = nil
 	end
 
