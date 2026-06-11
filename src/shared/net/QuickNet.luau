@@ -16,6 +16,15 @@
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
+-- Custom
+local types: {} = require("../types")
+local config: types.ConfigModule = require("../config")
+local BASE_CONFIG: types.BaseConfig = config.getConfig()
+
+if BASE_CONFIG.QuickNet then
+	return require(BASE_CONFIG.QuickNet)
+end
+
 --dependencies--
 local DataTypes = require("./DataTypes")
 local Enums = require("./Enums")

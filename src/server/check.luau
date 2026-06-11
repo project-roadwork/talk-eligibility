@@ -41,32 +41,13 @@ local BASE_CONFIG: types.BaseConfig = config.getConfig()
 	@private
 ]=]
 local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | string
-	local firstTest: boolean = false
-
-	-- First test
 	local success: boolean, result: boolean | string | nil =
 		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdFrom, userIdTo)
 
 	if success then
-		if BASE_CONFIG.CanDoSecondTests == true then
-			firstTest = (result == true)
-		else
-			return (result == true)
-		end
+		return (result == true)
 	else
-		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync (Test 1): {result}.`
-		utils.wrappedWarn(message)
-		return message
-	end
-
-	-- Second test (This is off by default, but is only there should it be needed)
-	local success2: boolean, result2: boolean | string | nil =
-		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdTo, userIdFrom)
-
-	if success2 then
-		return firstTest or (result2 == true)
-	else
-		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync (Test 2): {result2}.`
+		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync: {result}.`
 		utils.wrappedWarn(message)
 		return message
 	end

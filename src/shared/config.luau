@@ -11,7 +11,7 @@
 --!strict
 
 -- Variables
-local version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "alpha", build = 3, metadata = ""})
+local version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "alpha", build = 4, metadata = ""})
 
 --[=[
 	Private: Converts version to string
@@ -48,6 +48,9 @@ local BASE_CONFIG = {
 
     TextChatService = game:GetService("TextChatService"),
     --^ Change this if you are using something like OpenTextChatService
+
+    QuickNet = nil,
+    --^ Change this if you have your own QuickNet package
 
     --BeginningString = `<b><font color="#{Color3.fromRGB(210, 210, 210):ToHex()}">[System Message]</font></b> `,
     BeginningString = ``,
