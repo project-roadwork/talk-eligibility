@@ -19,10 +19,9 @@ local QuickNet: QuickNet.QuickNet = require("../shared/net/QuickNet")
 local types: {} = require("../shared/types")
 local config: types.ConfigModule = require("../shared/config")
 local utils: types.Utils = require("../shared/utils")
-local defer: types.FastDeferSafe = require("../shared/defer")
 
 -- Register Net Events
-local data: QuickNet.DataTypes = QuickNet.Data
+local data = QuickNet.Data
 
 local checkNewPlayer: QuickNet.NetworkEvent<(boolean | string)?, Player?> = QuickNet:register(
 	"checkNewPlayer",
@@ -35,17 +34,40 @@ local getTalkablePlayers: QuickNet.NetworkEvent<{ [Player]: boolean }?> =
 
 -- Variables
 local BASE_CONFIG: types.BaseConfig = config.getConfig()
+local chatCache: { [vector]: boolean } = {}
+local talkableCache: { [Player]: { [Player]: boolean } } = {}
+
+--[=[
+	Private: Gets the key for chatChache
+	@private
+]=]
+local function _getCacheKey(userId1: number, userId2: number): vector
+	if userId1 > userId2 then
+		userId1, userId2 = userId2, userId1
+	end
+
+	return vector.create(userId1, userId2)
+end
 
 --[=[
 	Private: Checks if the local player already has no restrictions, like being the creator
 	@private
 ]=]
 local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | string
+	local key: vector = _getCacheKey(userIdFrom, userIdTo)
+
+	local cached: boolean? = chatCache[key]
+	if cached ~= nil then
+		return cached
+	end
+
 	local success: boolean, result: boolean | string | nil =
 		pcall(TextChatService.CanUsersChatAsync, TextChatService, userIdFrom, userIdTo)
 
 	if success then
-		return (result == true)
+		local value: boolean = (result == true)
+		chatCache[key] = value
+		return value
 	else
 		local message: string = `An error occured while calling TextChatService.CanUsersChatAsync: {result}.`
 		utils.wrappedWarn(message)
@@ -54,25 +76,28 @@ local function _canUsersChat(userIdFrom: number, userIdTo: number): boolean | st
 end
 
 --[=[
-	Private: Returns a dictionary of players that a certain player can talk to
+	Private: Builds a dictionary of players that a certain player can talk to
 	@private
 ]=]
-local function _getTalkablePlayersfromPlayer(fromPlayer: Player): { [Player]: boolean }
-	local talkablePlayers: { [Player]: boolean } = {}
+local function _buildPlayerCache(newPlayer: Player): ()
+	talkableCache[newPlayer] = {}
 
-	for _: number, existingPlayer: Player in Players:GetPlayers() do
-		if existingPlayer ~= fromPlayer then
-			local result: boolean | string = _canUsersChat(fromPlayer.UserId, existingPlayer.UserId)
+	for _, existingPlayer: Player in Players:GetPlayers() do
+		if existingPlayer ~= newPlayer then
+			local canChat: boolean | string = _canUsersChat(newPlayer.UserId, existingPlayer.UserId)
 
-			if typeof(result) == "string" then
-				result = false -- a returned string means that the request failed
+			if typeof(canChat) == "string" then
+				canChat = false
 			end
 
-			talkablePlayers[existingPlayer] = result :: boolean
+			local result: boolean = canChat :: boolean
+
+			talkableCache[newPlayer][existingPlayer] = result
+
+			talkableCache[existingPlayer] = talkableCache[existingPlayer] or {}
+			talkableCache[existingPlayer][newPlayer] = result
 		end
 	end
-
-	return talkablePlayers
 end
 
 --[=[
@@ -84,20 +109,40 @@ local function _onPlayerAdded(newPlayer: Player): ()
 		return
 	end
 
-	defer(function()
-		task.wait(2)
+	task.wait(2)
 
-		if newPlayer == nil or newPlayer:IsDescendantOf(game) == false then
-			return
-		end
+	if newPlayer == nil or newPlayer:IsDescendantOf(game) == false then
+		return
+	end
 
-		for _: number, existingPlayer: Player in Players:GetPlayers() do
-			if existingPlayer ~= newPlayer then
-				local canChat: boolean | string = _canUsersChat(existingPlayer.UserId, newPlayer.UserId)
-				checkNewPlayer:FireClient(existingPlayer, canChat, newPlayer)
-			end
+	_buildPlayerCache(newPlayer)
+
+	for _: number, existingPlayer: Player in Players:GetPlayers() do
+		if existingPlayer ~= newPlayer then
+			local canChat: boolean | string = _canUsersChat(existingPlayer.UserId, newPlayer.UserId)
+			checkNewPlayer:FireClient(existingPlayer, canChat, newPlayer)
 		end
-	end)
+	end
+end
+
+--[=[
+	Private: Cleans up caches from player
+	@private
+]=]
+local function _onPlayerRemoving(player: Player): ()
+	talkableCache[player] = nil
+
+	for _: number, playerTable: { [Player]: boolean } in talkableCache do
+		playerTable[player] = nil
+	end
+
+	local userId: number = player.UserId
+
+	for key: vector, _: boolean in chatCache do
+		if key.x == userId or key.y == userId then
+			chatCache[key] = nil
+		end
+	end
 end
 
 --[=[
@@ -114,10 +159,11 @@ end
 ]=]
 local function start(): ()
 	getTalkablePlayers.OnServerEvent:Connect(function(player: Player)
-		getTalkablePlayers:FireClient(player, _getTalkablePlayersfromPlayer(player))
+		getTalkablePlayers:FireClient(player, talkableCache[player] or {})
 	end)
 
 	Players.PlayerAdded:Connect(_onPlayerAdded)
+	Players.PlayerRemoving:Connect(_onPlayerRemoving)
 end
 
 -- Return public variables and API

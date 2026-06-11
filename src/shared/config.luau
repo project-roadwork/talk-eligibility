@@ -11,7 +11,7 @@
 --!strict
 
 -- Variables
-local version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "alpha", build = 4, metadata = ""})
+local version: Version = table.freeze({major = 1, minor = 0, patch = 0, pre_release = "beta", build = 1, metadata = ""})
 
 --[=[
 	Private: Converts version to string

@@ -22,7 +22,7 @@ local utils: types.Utils = require("../shared/utils")
 local defer: types.FastDeferSafe = require("../shared/defer")
 
 -- Register Net Events
-local data: QuickNet.DataTypes = QuickNet.Data
+local data = QuickNet.Data
 
 local checkNewPlayer: QuickNet.NetworkEvent<(boolean | string)?, Player?> = QuickNet:register(
 	"checkNewPlayer",
